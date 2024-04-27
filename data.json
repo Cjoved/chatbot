@@ -1,0 +1,245 @@
+{
+    "data": [
+        
+        {
+            "tag": "greeting",
+            "pattern": [
+                "Hi",
+                "Hey",
+                "How are you",
+                "Is anyone there?",
+                "Hello",
+                "Good day"
+            ],
+            "response": [
+                "Hey :-)",
+                "Hello, thanks for visiting",
+                "Hi there, what can I do for you?",
+                "Hi there, how can I help?",
+                "Good to see you! What can I assist you with?",
+                "Hello! How's your day going?",
+                "Hey! What brings you here today?",
+                "Hi there! Need any assistance?"
+            ]
+        },
+        {
+            "tag": "goodbye",
+            "pattern": [
+                "Bye",
+                "See you later",
+                "Goodbye"
+            ],
+            "response": [
+                "See you later, thanks for visiting",
+                "Have a nice day",
+                "Bye! Come back again soon.",
+                "Goodbye! Take care.",
+                "Farewell! Have a great day.",
+                "Catch you later! Stay safe.",
+                "See you soon! Don't hesitate to return.",
+                "Until next time! Enjoy your day."
+            ]
+        },
+        {
+            "tag": "thanks",
+            "pattern": [
+                "Thanks",
+                "Thank you",
+                "That's helpful",
+                "Thank's a lot!"
+            ],
+            "response": [
+                "Happy to help!",
+                "Any time!",
+                "My pleasure",
+                "Glad I could assist!",
+                "You're welcome!",
+                "Always here to help!",
+                "No problem!",
+                "Don't mention it!"
+            ]
+        },
+        {
+            "tag": "Add",
+            "pattern": [
+                "Could you append this to my schedule?",
+                "Insert this event into my calendar.",
+                "Add this date to my agenda.",
+                "Integrate this with my plans.",
+                "Attach this to my timetable.",
+                "Merge this with my existing events.",
+                "Incorporate this activity into my schedule.",
+                "Combine this with my appointments.",
+                "Create a schedule including this event.",
+                "Produce a timetable for this occasion.",
+                "Develop a plan for this activity.",
+                "Craft a schedule around this event.",
+                "Invent a timetable for this occasion.",
+                "Build a plan for this event.",
+                "Formulate a schedule for this activity.",
+                "Construct a timetable for this event.",
+                "Generate a plan for this occasion."
+            ],
+            "response": [
+                "What is the category of the event or scheduled?"
+            ]
+        },
+        {
+            "tag": "Add_Category",
+            "pattern": [
+                "Category: "
+            ],
+            "response": [
+                "What is the event?"
+            ]
+        },
+        {
+            "tag": "Add_Event",
+            "pattern": [
+                "Event: "
+            ],
+            "response": [
+                "What is the date?"
+            ]
+        },
+        {
+            "tag": "Add_Date",
+            "pattern": [
+                "Date: "
+            ],
+            "response": [
+                "What is the starting time?"
+            ]
+        },
+        {
+            "tag": "Add_StartTime",
+            "pattern": [
+                "Start Time: "
+            ],
+            "response": [
+                "What is the end time?"
+            ]
+        },
+        {
+            "tag": "Add_EndTime",
+            "pattern": [
+                "End Time:"
+            ],
+            "response": [
+                "What is the location of the meeting?"
+            ]
+        },
+        {
+            "tag": "Add_Location",
+            "pattern": [
+                "Location: "
+            ],
+            "response": [
+                "The event has been successfully added."
+            ]
+        },
+        {
+            "tag": "Update",
+            "pattern": [
+                "I need to update my schedule.",
+                "Can you revise my schedule?",
+                "Please modify this in my calendar.",
+                "Adjust this appointment in my timetable.",
+                "Revamp my plans with these changes.",
+                "Refine my schedule with these updates.",
+                "Enhance this event in my agenda.",
+                "Edit this entry in my schedule.",
+                "Rewrite my timetable for these adjustments.",
+                "Can you update my schedule?"
+            ],
+            "response": [
+                "What event needs to be updated? Please specify."
+            ]
+        },
+        {
+            "tag": "Update_Event",
+            "pattern": [
+                "Update Event:"
+            ],
+            "response": [
+                "What is the new date of the event?"
+            ]
+        },
+        {
+            "tag": "Update_Date",
+            "pattern": [
+                "New Date:"
+            ],
+            "response": [
+                "What is the new start time of the event?"
+            ]
+        },
+        {
+            "tag": "Update_StartTime",
+            "pattern": [
+                "Update Start Time:"
+            ],
+            "response": [
+                "What is the new end time of the event?"
+            ]
+        },
+        {
+            "tag": "Update_EndTime",
+            "pattern": [
+                "New End Time:"
+            ],
+            "response": [
+                "What is the new location?"
+            ]
+        },
+        {
+            "tag": "Update_Location",
+            "pattern": [
+                "New Location:"
+            ],
+            "response": [
+                "The event has been successfully updated."
+            ]
+        },
+        {
+            "tag": "Delete",
+            "pattern": [
+                "Please delete this from my schedule.",
+                "Remove this event from my calendar.",
+                "Erase this appointment from my timetable.",
+                "Eliminate this from my agenda.",
+                "Discard this event from my plans.",
+                "Trash this appointment from my schedule.",
+                "Dismiss this event from my calendar.",
+                "Wipe this entry from my timetable.",
+                "Cut this from my agenda.",
+                "Extract this event from my schedule.",
+                "Withdraw this appointment from my plans.",
+                "Exclude this event from my calendar.",
+                "Take away this event from my schedule."
+            ],
+            "response": [
+                "Which event do you want to delete? Please specify."
+            ]
+        },
+        {
+            "tag": "Delete_Event",
+            "pattern": [
+                "Delete Event:"
+            ],
+            "response": [
+                "What is the date of this event?"
+            ]
+        },
+        {
+            "tag": "Delete_Date",
+            "pattern": [
+                "Delete Date: "
+            ],
+            "response": [
+                "The event has been successfully deleted."
+            ]
+        }
+        
+    ]
+}
