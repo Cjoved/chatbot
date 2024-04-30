@@ -4,9 +4,7 @@ import torch
 import spacy
 from data_model import NeuralNet
 from process import bag_of_words, tokenize
-
-# Load English language model
-nlp = spacy.load("en_core_web_sm")
+from validate_response import date_validator, starttime_validator, endtime_validator,convert_to_military_date,convert_to_military_startime,convert_to_military_endtime
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -30,6 +28,9 @@ model = NeuralNet(input_size, hidden_size, output_size).to(device)
 model.load_state_dict(model_state)
 model.eval()
 
+# Load English language model for spaCy
+nlp = spacy.load("en_core_web_sm")
+
 # Bot parameters
 bot_name = "Belle"
 fallback_responses = [
@@ -40,6 +41,7 @@ fallback_responses = [
 
 # Main conversation loop
 print(f"Welcome to {bot_name}! (Type 'quit', 'exit', or 'bye' to stop the conversation)")
+
 def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu', all_words=None, fallback_responses=None, confidence_threshold=0.75):
    
     user_input = user_input.lower()
@@ -73,72 +75,76 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
                 # Check if the intent requires further user input
                 if intent["tag"] == "Add":
                     context = {}
-                    # Prompt for category
-                    user_input = input("You: Category: ")
-                    context["Category: "] = user_input
-
                     # Prompt for event
                     for response in data['data'][4]['response']:
                         print(f"{bot_name}: {response}")
-                    user_input = input("You: Event: ")
+                    user_input = input("Event: ")
                     context["Event: "] = user_input
 
                     # Prompt for Date
                     for response in data['data'][5]['response']:
                         print(f"{bot_name}: {response}")
-                    user_input = input("You: Date:")
+                    user_input = get_valid_date("Add Date: ")
+                    convert_date = convert_to_military_date(user_input)
                     context["Date: "] = user_input
 
                     # Prompt for start time
-                    for response in data['data'][6]['response']:
-                        print(f"{bot_name}: {response}")
-                    user_input = input("You: Start Time: ")
+                    user_input = get_valid_time("Add Start Time: ")
+                    convert_startTime = convert_to_military_startime(user_input)
                     context["Start Time:"] = user_input
 
                     # Prompt for end time
-                    for response in data['data'][7]['response']:
-                        print(f"{bot_name}: {response}")
-                    user_input = input("You: End Time: ")
+                    user_input = get_valid_time("Add End Time: ")
+                    convert_endtime = convert_to_military_endtime(user_input)
                     context["End Time"] = user_input
 
                     # Prompt for location
                     for response in data['data'][8]['response']:
                         print(f"{bot_name}: {response}")
-                    user_input = input("You: Location: ")
+                    user_input = input("Location: ")
                     context["Location"] = user_input
 
                     print(f"{bot_name}: Details added successfully: {context}")
+                      #check if its converted
+                    print(f"Converted Date:{convert_date} Converted Startime: {convert_startTime} Converted End Time: {convert_endtime}")
 
-                #For Update response
+                # For Update response
                 elif intent["tag"] == "Update":
                     context_update= {}
 
-                    user_input = input("You: Update Event:")
+                    user_input = input("Update Event:")
                     context_update["New Event: "] = user_input
 
                     for response in data['data'][11]['response']:
                         print(f"{bot_name}:{response}")
-                        user_input = input("You: Update Date: ")
+                        user_input = get_valid_date("New Date: ")
+                        convert_date = convert_to_military_date(user_input)
                         context_update["New Date: "] = user_input
-
                     for response in data['data'][12]['response']:
                         print(f"{bot_name}:{response}")
-                        user_input = input("You: Update Start Time:: ")
+
+                        user_input = get_valid_time("Update Start Time:: ")
+                        convert_startTime = convert_to_military_startime(user_input)
                         context_update["New Start Time: "] = user_input
 
                     for response in data['data'][13]['response']:
                         print(f"{bot_name}:{response}")
-                        user_input = input("You: Update End Time: ")
+
+                        user_input = get_valid_time("Update End Time: ")
+                        convert_endtime = convert_to_military_endtime(user_input)
                         context_update["New End Time:  "] = user_input
                     
                     for response in data['data'][14]['response']:
                         print(f"{bot_name}:{response}")
-                        user_input = input("You: Update Location: ")
-                        context_update["New Location: "] = user_input
+                        user_input = input("Update Location: ")
+                        context_update["Updated Location: "] = user_input
 
                     print(f"{bot_name}: Details updated successfully: {context_update}")
+
+                    #check if its converted
+                    print(f"Converted Date:{convert_date} Converted Startime: {convert_startTime} Converted End Time: {convert_endtime}")
                 
-                #For Delete Response
+                # For Delete Response
                 elif intent["tag"] == "Delete":
                     context_delete= {}
 
@@ -147,8 +153,11 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
 
                     for response in data['data'][17]['response']:
                         print(f'{bot_name}:{response}')
-                        user_input = input("You: Delete Date:")
+                        user_input = get_valid_date("Delete Date: ")
+                        convert_date = convert_to_military_date(user_input)
                         context_delete["Deleted Date: "] = user_input
+
+                        print(convert_date)
 
                     for response in data['data'][18]['response']:
                         print(f'{bot_name}: {response}')                    
@@ -158,5 +167,31 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
         print(f"{bot_name}: {random.choice(fallback_responses)}")
 
     return ""
-user_input = input("You: ")
-response = process_user_input(user_input, nlp, model, tags, data, bot_name, device, all_words, fallback_responses)
+
+# This function is for validating the time format. reloop if the user input is not valid
+def get_valid_time(prompt):
+    while True:
+        user_input = input(prompt)
+        if starttime_validator(user_input) or endtime_validator(user_input):
+            return user_input
+        else:
+            print("Invalid time format. Please enter a valid time.")
+
+# This function is for validating the date format. reloop if the user input is not valid
+def get_valid_date(prompt):
+    while True:
+        user_input = input(prompt)
+        if date_validator(user_input):
+            return user_input
+        else:
+            print("Invalid date format. Please enter a valid date")
+        
+
+# This is for checking only. For testing purposes. Comment this if you want 
+while True:
+    user_input = input("You: ")
+    if user_input.lower() in {"quit", "exit", "bye"}:
+        print(f"{bot_name}: Goodbye! Have a great day.")
+        break
+    # calling the process function
+    response = process_user_input(user_input, nlp, model, tags, data, bot_name, device, all_words, fallback_responses)
