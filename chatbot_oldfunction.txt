@@ -1,52 +1,10 @@
-import random
-import json
-import torch
-import spacy
-from data_model import NeuralNet
-from process import bag_of_words, tokenize
-
-# Load English language model
-nlp = spacy.load("en_core_web_sm")
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# Load data from JSON file
-with open('data.json', 'r') as data_file:
-    data = json.load(data_file)
-
-# Load trained model
-model_file = "data.pth"
-model_data = torch.load(model_file)
-
-# Initialize neural network model
-input_size = model_data["input_size"]
-hidden_size = model_data["hidden_size"]
-output_size = model_data["output_size"]
-all_words = model_data['all_words']
-tags = model_data['tags']
-model_state = model_data["model_state"]
-
-model = NeuralNet(input_size, hidden_size, output_size).to(device)
-model.load_state_dict(model_state)
-model.eval()
-
-# Bot parameters
-bot_name = "Belle"
-fallback_responses = [
-    "I'm sorry, I didn't quite catch that.",
-    "Could you please rephrase that?",
-    "I'm not sure I understand. Can you provide more context?"
-]
-
-# Main conversation loop
-print(f"Welcome to {bot_name}! (Type 'quit', 'exit', or 'bye' to stop the conversation)")
-def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu', all_words=None, fallback_responses=None, confidence_threshold=0.75):
-   
-    user_input = user_input.lower()
+while True:
+    user_input = input("You: ").lower()
 
     if user_input in {"quit", "exit", "bye"}:
-        return f"{bot_name}: Goodbye! Have a great day."
-
+        break
+    
+    
     # Tokenize user input using spaCy
     doc = nlp(user_input)
     user_tokens = [token.text for token in doc]
@@ -63,6 +21,9 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
     probs = torch.softmax(output, dim=1)
     predicted_prob = probs[0][predicted_idx.item()].item()
 
+    confidence_threshold = 0.75
+
+    # Check if prediction confidence is above threshold
     if predicted_prob > confidence_threshold:
         for intent in data['data']:
             if predicted_tag == intent["tag"]:
@@ -109,8 +70,9 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
 
                     print(f"{bot_name}: Details added successfully: {context}")
 
-                #For Update response
-                elif intent["tag"] == "Update":
+
+                    #For Update response
+                if intent["tag"] == "Update":
                     context_update= {}
 
                     user_input = input("You: Update Event:")
@@ -138,8 +100,8 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
 
                     print(f"{bot_name}: Details updated successfully: {context_update}")
                 
-                #For Delete Response
-                elif intent["tag"] == "Delete":
+                    #For Delete Response
+                if intent["tag"] == "Delete":
                     context_delete= {}
 
                     user_input = input("You: Delete Event: ")
@@ -157,6 +119,5 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
     else:
         print(f"{bot_name}: {random.choice(fallback_responses)}")
 
-    return ""
-user_input = input("You: ")
-response = process_user_input(user_input, nlp, model, tags, data, bot_name, device, all_words, fallback_responses)
+#Quit
+print(f"{bot_name}: Goodbye! Have a great day.")
