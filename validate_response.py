@@ -28,7 +28,7 @@ def endtime_validator(endtime):
         return False
 
 def convert_to_military_startime(time_str):
-    # Parse the time string
+  # Parse the time string
     parsed_time = parse(time_str)
     
     # Extract hour and minute components
@@ -36,7 +36,10 @@ def convert_to_military_startime(time_str):
     minute = parsed_time.minute
     
     # Convert to military time
-    military_hour = hour if hour == 12 else (hour + 12) % 24
+    if hour == 12 and "AM" in time_str.upper():
+        military_hour = 0  # 12:00 AM
+    else:
+        military_hour = hour if hour == 12 else (hour + 12) % 24
     
     # Format the military time string
     military_time_str = f"{military_hour:02d}:{minute:02d}"
@@ -52,7 +55,10 @@ def convert_to_military_endtime(time_str):
     minute = parsed_time.minute
     
     # Convert to military time
-    military_hour = hour if hour == 12 else (hour + 12) % 24
+    if hour == 12 and "AM" in time_str.upper():
+        military_hour = 0  # 12:00 AM
+    else:
+        military_hour = hour if hour == 12 else (hour + 12) % 24
     
     # Format the military time string
     military_time_str = f"{military_hour:02d}:{minute:02d}"
