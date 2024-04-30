@@ -35,11 +35,13 @@ def convert_to_military_startime(time_str):
     hour = parsed_time.hour
     minute = parsed_time.minute
     
-    # Convert to military time
-    if hour == 12 and "AM" in time_str.upper():
+    # Check if it's PM and not 12 PM
+    if "PM" in time_str.upper() and hour != 12:
+        military_hour = hour + 12
+    elif hour == 12 and "AM" in time_str.upper():
         military_hour = 0  # 12:00 AM
     else:
-        military_hour = hour if hour == 12 else (hour + 12) % 24
+        military_hour = hour
     
     # Format the military time string
     military_time_str = f"{military_hour:02d}:{minute:02d}"
@@ -47,23 +49,26 @@ def convert_to_military_startime(time_str):
     return military_time_str
 
 def convert_to_military_endtime(time_str):
-    # Parse the time string
+   # Parse the time string
     parsed_time = parse(time_str)
     
     # Extract hour and minute components
     hour = parsed_time.hour
     minute = parsed_time.minute
     
-    # Convert to military time
-    if hour == 12 and "AM" in time_str.upper():
+    # Check if it's PM and not 12 PM
+    if "PM" in time_str.upper() and hour != 12:
+        military_hour = hour + 12
+    elif hour == 12 and "AM" in time_str.upper():
         military_hour = 0  # 12:00 AM
     else:
-        military_hour = hour if hour == 12 else (hour + 12) % 24
+        military_hour = hour
     
     # Format the military time string
     military_time_str = f"{military_hour:02d}:{minute:02d}"
     
     return military_time_str
+    
 def convert_to_military_date(date_str):
     # Parse the date string
     parsed_date = parse(date_str)
