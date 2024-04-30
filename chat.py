@@ -120,15 +120,10 @@ def process_user_input(user_input, nlp, model, tags, data, bot_name, device='cpu
                         user_input = get_valid_date("New Date: ")
                         convert_date = convert_to_military_date(user_input)
                         context_update["New Date: "] = user_input
-                    for response in data['data'][12]['response']:
-                        print(f"{bot_name}:{response}")
 
-                        user_input = get_valid_time("Update Start Time:: ")
+                        user_input = get_valid_time("Update Start Time: ")
                         convert_startTime = convert_to_military_startime(user_input)
                         context_update["New Start Time: "] = user_input
-
-                    for response in data['data'][13]['response']:
-                        print(f"{bot_name}:{response}")
 
                         user_input = get_valid_time("Update End Time: ")
                         convert_endtime = convert_to_military_endtime(user_input)

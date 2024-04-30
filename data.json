@@ -153,7 +153,7 @@
                 "Can you update my schedule?"
             ],
             "response": [
-                "What event needs to be updated? Please specify."
+                "What event needs to be updated? Please specify. Fill the information"
             ]
         },
         {
@@ -162,7 +162,7 @@
                 "Update Event:"
             ],
             "response": [
-                "What is the new date of the event?"
+                "What is the new date and time  of the event?"
             ]
         },
         {
