@@ -26,6 +26,12 @@ def endtime_validator(endtime):
         return True
     except:
         return False
+def location_validator(location):
+    if len(location)<=30:
+        return True
+    else:
+        return False
+    
 
 def convert_to_military_startime(time_str):
   # Parse the time string

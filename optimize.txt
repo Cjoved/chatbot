@@ -1,0 +1,172 @@
+import random
+import json
+import torch
+import spacy
+from data_model import NeuralNet
+from process import bag_of_words, tokenize
+from validate_response import date_validator, convert_to_military_date, convert_to_military_startime, convert_to_military_endtime,starttime_validator,endtime_validator
+
+# Initialize global variables
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+bot_name = "Belle"
+
+fallback_responses = [
+    "I'm sorry, I didn't quite catch that.",
+    "Could you please rephrase that?",
+    "I'm not sure I understand. Can you provide more context?"
+]
+confidence_threshold = 0.75  # Global confidence threshold
+
+# Load data from JSON file
+with open('data.json', 'r') as data_file:
+    data = json.load(data_file)
+
+# Load trained model
+model_file = "data.pth"
+model_data = torch.load(model_file)
+
+# Initialize neural network model
+input_size = model_data["input_size"]
+hidden_size = model_data["hidden_size"]
+output_size = model_data["output_size"]
+all_words = model_data['all_words']
+tags = model_data['tags']
+model_state = model_data["model_state"]
+
+model = NeuralNet(input_size, hidden_size, output_size).to(device)
+model.load_state_dict(model_state)
+model.eval()
+
+# Load English language model for spaCy
+nlp = spacy.load("en_core_web_sm")
+
+def generate_response(predicted_tag, data, fallback_responses, bot_name):
+    response_messages = []
+    for intent in data['data']:
+        if predicted_tag == intent["tag"]:
+            random.shuffle(intent["response"])
+            response_messages.append(f"{bot_name}: {random.choice(intent['response']).strip('[]')}")
+            break
+
+    if not response_messages:
+        response_messages.append(f"{bot_name}: {random.choice(fallback_responses)}")
+
+    return response_messages
+
+def handle_intent(predicted_tag, data):
+    if predicted_tag == "Add":
+        return handle_add_intent(data)
+    elif predicted_tag == "Update":
+        return handle_update_intent(data)
+    elif predicted_tag == "Delete":
+        return handle_delete_intent(data)
+    elif predicted_tag == "goodbye":
+        exit()
+    else:
+        return [f"{bot_name}: {random.choice(fallback_responses)}"]
+
+def handle_add_intent(data):
+    response_messages = []
+
+    for response in data['data'][4]['response']:
+        response_messages.append(f"{bot_name}: {response}")
+    response_messages.append(f"{bot_name}: What is the event?")
+    event = input()
+    response_messages.append(f"{bot_name}: Add Date:")
+    date = validate_date(input())
+    response_messages.append(f"{bot_name}: Add Start Time:")
+    start_time = validate_time(input("Add Start Time:"))
+    response_messages.append(f"{bot_name}: Add End Time:")
+    end_time = validate_time(input("Add End Time:"))
+    response_messages.append(f"{bot_name}: What is the location of the meeting?")
+    location = input()
+    response_messages.append(f"{bot_name}: Details added successfully: Event: {event}, Date: {date}, Start Time: {start_time}, End Time: {end_time}, Location: {location}")
+    response_messages.append(f"Converted Date: {convert_to_military_date(date)} Converted Start Time: {convert_to_military_startime(start_time)} Converted End Time: {convert_to_military_endtime(end_time)}")
+
+    return response_messages
+
+def handle_update_intent(data):
+    response_messages = []
+
+    for response in data['data'][11]['response']:
+        response_messages.append(f"{bot_name}: {response}")
+    response_messages.append(f"{bot_name}: Update Event:")
+    event = input()
+    response_messages.append(f"{bot_name}: New Event:")
+    new_event = input()
+    response_messages.append(f"{bot_name}: New Date:")
+    new_date = validate_date(input("New Date:"))
+    response_messages.append(f"{bot_name}: Update Start Time:")
+    new_start_time = validate_time(input("Update Start Time:"))
+    response_messages.append(f"{bot_name}: Update End Time:")
+    new_end_time = validate_time(input("Update End Time:"))
+    response_messages.append(f"{bot_name}: Updated Location: ")
+    new_location = input()
+    response_messages.append(f"{bot_name}: Details updated successfully: New Event: {new_event}, New Date: {new_date}, New Start Time: {new_start_time}, New End Time: {new_end_time}, Updated Location: {new_location}")
+    response_messages.append(f"Converted Date: {convert_to_military_date(new_date)} Converted Start Time: {convert_to_military_startime(new_start_time)} Converted End Time: {convert_to_military_endtime(new_end_time)}")
+
+    return response_messages
+
+def handle_delete_intent(data):
+    response_messages = []
+
+    for response in data['data'][17]['response']:
+        response_messages.append(f"{bot_name}: {response}")
+    response_messages.append(f"{bot_name}: Delete Event:")
+    deleted_event = input()
+    response_messages.append(f"{bot_name}: Delete Date:")
+    deleted_date = validate_date(input("Delete Date:"))
+    response_messages.append(f"{bot_name}: Event deleted successfully: {deleted_event} on {deleted_date}")
+    response_messages.append(f"Converted Date: {convert_to_military_date(deleted_date)}")
+
+    return response_messages
+
+def validate_date(prompt):
+    while True:
+        user_input = input(prompt)
+        if date_validator(user_input):
+            return user_input
+        else:
+            print("Invalid date format. Please enter a valid date")
+
+def validate_time(prompt):
+    while True:
+        user_input = input(prompt)
+        if starttime_validator(user_input) or endtime_validator(user_input):
+            return user_input
+        else:
+            print("Invalid time format. Please enter a valid time.")
+def process_user_input(user_input):
+    response_messages = []  # List to store response messages
+
+    user_input = user_input.lower()
+
+    # Tokenize user input using spaCy
+    doc = nlp(user_input)
+    user_tokens = [token.text for token in doc]
+
+    # Bag of words
+    user_bow = bag_of_words(user_tokens, all_words)
+    user_bow = torch.from_numpy(user_bow).unsqueeze(0).to(device)
+
+    # Pass user input through the model
+    output = model(user_bow)
+    _, predicted_idx = torch.max(output, dim=1)
+    predicted_tag = tags[predicted_idx.item()]
+
+    probs = torch.softmax(output, dim=1)
+    predicted_prob = probs[0][predicted_idx.item()].item()
+
+    if predicted_prob > confidence_threshold:
+        response_messages.extend(generate_response(predicted_tag, data, fallback_responses, bot_name))
+        response_messages.extend(handle_intent(predicted_tag, data))
+
+    return '\n'.join(response_messages)
+
+def main():
+    while True:
+        user_input = input("You: ")
+        print(process_user_input(user_input))
+
+if __name__ == "__main__":
+    main()
