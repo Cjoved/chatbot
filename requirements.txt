@@ -1,0 +1,6 @@
+torch
+spacy
+nltk
+numpy
+python-dateutil
+date-spacy

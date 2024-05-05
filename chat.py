@@ -4,7 +4,7 @@ import torch
 import spacy
 from data_model import NeuralNet
 from process import bag_of_words
-from validate_response import date_validator, starttime_validator, endtime_validator, location_validator,convert_to_military_date, convert_to_military_startime, convert_to_military_endtime
+from validate_response import date_validator, time_validator, location_validator, convert_to_military_time
 
 # Initialize global variables
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -26,6 +26,8 @@ fallback_responses_date = [
     "It appears that there might be a problem with the date format. Could you please check and provide the date again?",
     "Apologies, I'm having difficulty understanding the date mentioned. Could you clarify or provide additional details?"
 ]
+
+
 confidence_threshold = 0.75  # Global confidence threshold
 model_file = "data.pth"
 data_file = "data.json"
@@ -92,89 +94,107 @@ def handle_intent(intent, message):
     elif intent == "Add_Event":
         return generate_response(intent)
     elif intent == "Add_Date":
-        date = message.strip()
-        if date_validator(date):
+        text = message.strip()
+        validation_result = date_validator(text)
+        if validation_result[1]:
             message= generate_response(intent)
-            convert_date = convert_to_military_date(date)
-            return convert_date
+            convert_date = validation_result[0]
+            return {"Date": convert_date, "message": message}
         else:                  
             return {"message": random.choice(fallback_responses_date)}
     elif intent == "Add_StartTime":
-        starttime = message.strip()
-        if starttime_validator(starttime):
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
             message= generate_response(intent)
-            convert_st = convert_to_military_startime(starttime)
-            return convert_st
+            convert_st = convert_to_military_time(validation_result[1])
+            return {"Start Time": convert_st, "message": message}
         else:
              return {"message": random.choice(fallback_responses_time)}
     elif intent =="Add_EndTime":
-        endtime = message.strip()
-        if endtime_validator(endtime):
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
             message= generate_response(intent)
-            convert_et = convert_to_military_endtime(endtime)
-            return convert_et            
+            convert_et = convert_to_military_time(validation_result[1])
+            return {"End Time": convert_et, "message": message}          
         else:
             return {"message": random.choice(fallback_responses_time)}
     elif intent == "Add_Location":
         location = message.strip()
         if location_validator(location):
-           message= generate_response(intent)
+           result = generate_response(intent)
+           result["Location"] = location
+           return result
         else:
-            return {"message":""}
+            return {"message": random.choice(fallback_responses)}
         
 
     elif intent == "Update":
         return generate_response(intent)
     elif intent == "Update_Event":
-        message= generate_response(intent)
-        return generate_response(intent)
+      
+      return generate_response(intent)
     elif intent == "Update_Date":
-        update_date = message.strip()
-
-        if date_validator(update_date):
+        text = message.strip()
+        validation_result = date_validator(text)
+        if validation_result[1]:
             message= generate_response(intent)
-            check_updatedate = convert_to_military_date(update_date)
-            return check_updatedate
+            convert_date = validation_result[0]
+            return {"Date": convert_date, "message": message}
         else:
             return {"message": random.choice(fallback_responses_date)}
         
     elif intent == "Update_StartTime":
-        update_starttime = message.strip()
-        if starttime_validator(update_starttime):
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
             message= generate_response(intent)
-            check_startimeupdate = convert_to_military_startime(update_starttime)
-            return check_startimeupdate
+            convert_st = convert_to_military_time(validation_result[1])
+            return {"Start Time": convert_st, "message": message}
         else:
              return {"message": random.choice(fallback_responses_time)}
     elif intent == "Update_EndTime":
-        update_endtime = message.strip()
-        if endtime_validator(update_endtime):
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
             message= generate_response(intent)
-            check_endtime = convert_to_military_startime(endtime)
-            return check_endtime
+            convert_et = convert_to_military_time(validation_result[1])
+            return {"End Time": convert_et, "message": message}
         else:
             return {"message": random.choice(fallback_responses_time)}
     elif intent== "Update_location":
         update_location = message.strip()
         if location_validator(update_location):
-            message = data["data"][14]["response"]
+            {"message" : data["data"][14]["response"], "Location": update_location}
         else:
             return{"message":""}
         
+##### Still Thinking about thiss
     elif intent == "Delete":
         return generate_response(intent)
     elif intent == "Delete_Date":
-        delete_date = message.strip()
-        if date_validator(delete_date):
+        text = message.strip()
+        validation_result = date_validator(text)
+        if validation_result[1]:
             message= generate_response(intent)
-            check_deletedate = convert_to_military_date(delete_date)
-            return check_deletedate
+            convert_date = validation_result[0]
+            return {"Date": convert_date, "message": message}
         else:
             return {"message": random.choice(fallback_responses_date)}
 
     return message
 
-
+############################################################################################
+# MESSAGE
+###########################################################################################
+# Pede bang pagsama samahin na yung patterns for date, end, start at loc, at event?
+# Kasi malilito lang ang model kasi halos pare pareho naman ang patterns nun, 
+# maiidentify naman natin kung update, add at delete dahil nauuna naman yung pagtatanong natin ng ganun
+# Yung sa response di ba pede pagsama samahin na lang din yung responses for update, add, delete?
+# Lalagyan nalng siguro ng key sa response para malaman kung ano dun yung ireresponse pag yung 
+# aim ni user if for update, add or delete
+##############################################################################################
 text = ''
 while text != 'exit':
     text = input("My Message: ")
