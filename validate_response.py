@@ -20,19 +20,23 @@ def date_validator(text):
         #date=parse(date)
         # regex to confirm if the text has a number
         # kung walng number ang text, raise exception
-        date_extracted = None
-        for ent in doc.ents:
-            if ent.label_ == "DATE":
-                print(f"Text: {ent.text} -> Parsed Date: {ent._.date}")
-                date_extracted = ent._.date
-                date_formatted = date_extracted.strftime(date_format)
-                return date_formatted, True
-        
-        if date_extracted is None:
-            result = search_dates(text)
-            return result[0][1].strftime(date_format), False
-        
+        if re.search(r'\d', text):
 
+
+            date_extracted = None
+            for ent in doc.ents:
+                if ent.label_ == "DATE":
+                    print(f"Text: {ent.text} -> Parsed Date: {ent._.date}")
+                    date_extracted = ent._.date
+                    date_formatted = date_extracted.strftime(date_format)
+                    return date_formatted, True
+        
+                if date_extracted is None:
+                    result = search_dates(text)
+                    return result[0][1].strftime(date_format), False
+        
+        else:
+            return Exception
     except Exception as e:
         print(f"Error occured: {e}")
         return None, False
@@ -57,7 +61,7 @@ def time_validator(text):
                 time = number[0] + " PM"
                 starttime = parse(time)
         
-        return True, starttime
+        return True,str(starttime)
     except Exception as e:
         print(f"Error occured: {e}")
         return False, None

@@ -14,6 +14,9 @@ fallback_responses = [
     "I'm not sure I understand. Can you provide more context?"
 ]
 
+fallback_responses_add = {}
+fallback_responses_update={}
+fallback_responses_delete={}
 
 fallback_responses_time = [
     "I'm sorry, I'm having trouble understanding the time you provided. Could you please rephrase it or provide more context?",
@@ -91,9 +94,9 @@ def generate_response(predicted_tag):
 def handle_intent(intent, message):
     if intent == "Add":
         return generate_response(intent)
-    elif intent == "Add_Event":
+    elif intent == "Event":
         return generate_response(intent)
-    elif intent == "Add_Date":
+    elif intent == "Date":
         text = message.strip()
         validation_result = date_validator(text)
         if validation_result[1]:
@@ -102,7 +105,7 @@ def handle_intent(intent, message):
             return {"Date": convert_date, "message": message}
         else:                  
             return {"message": random.choice(fallback_responses_date)}
-    elif intent == "Add_StartTime":
+    elif intent == "Time":
         text = message.strip()
         validation_result = time_validator(text)
         if validation_result[0]:
@@ -111,16 +114,8 @@ def handle_intent(intent, message):
             return {"Start Time": convert_st, "message": message}
         else:
              return {"message": random.choice(fallback_responses_time)}
-    elif intent =="Add_EndTime":
-        text = message.strip()
-        validation_result = time_validator(text)
-        if validation_result[0]:
-            message= generate_response(intent)
-            convert_et = convert_to_military_time(validation_result[1])
-            return {"End Time": convert_et, "message": message}          
-        else:
-            return {"message": random.choice(fallback_responses_time)}
-    elif intent == "Add_Location":
+    
+    elif intent == "Location":
         location = message.strip()
         if location_validator(location):
            result = generate_response(intent)
@@ -129,46 +124,9 @@ def handle_intent(intent, message):
         else:
             return {"message": random.choice(fallback_responses)}
         
-
     elif intent == "Update":
         return generate_response(intent)
-    elif intent == "Update_Event":
-      
-      return generate_response(intent)
-    elif intent == "Update_Date":
-        text = message.strip()
-        validation_result = date_validator(text)
-        if validation_result[1]:
-            message= generate_response(intent)
-            convert_date = validation_result[0]
-            return {"Date": convert_date, "message": message}
-        else:
-            return {"message": random.choice(fallback_responses_date)}
-        
-    elif intent == "Update_StartTime":
-        text = message.strip()
-        validation_result = time_validator(text)
-        if validation_result[0]:
-            message= generate_response(intent)
-            convert_st = convert_to_military_time(validation_result[1])
-            return {"Start Time": convert_st, "message": message}
-        else:
-             return {"message": random.choice(fallback_responses_time)}
-    elif intent == "Update_EndTime":
-        text = message.strip()
-        validation_result = time_validator(text)
-        if validation_result[0]:
-            message= generate_response(intent)
-            convert_et = convert_to_military_time(validation_result[1])
-            return {"End Time": convert_et, "message": message}
-        else:
-            return {"message": random.choice(fallback_responses_time)}
-    elif intent== "Update_location":
-        update_location = message.strip()
-        if location_validator(update_location):
-            {"message" : data["data"][14]["response"], "Location": update_location}
-        else:
-            return{"message":""}
+
         
 ##### Still Thinking about thiss
     elif intent == "Delete":

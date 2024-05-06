@@ -504,3 +504,38 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ============================================================================================================================================================================================
+
+elif intent =="Add_EndTime":
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
+            message= generate_response(intent)
+            convert_et = convert_to_military_time(validation_result[1])
+            return {"End Time": convert_et, "message": message}          
+        else:
+            return {"message": random.choice(fallback_responses_time)}
+
+
+    elif intent == "Update_StartTime":
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
+            message= generate_response(intent)
+            convert_st = convert_to_military_time(validation_result[1])
+            return {"Start Time": convert_st, "message": message}
+        else:
+             return {"message": random.choice(fallback_responses_time)}
+    elif intent == "Update_EndTime":
+        text = message.strip()
+        validation_result = time_validator(text)
+        if validation_result[0]:
+            message= generate_response(intent)
+            convert_et = convert_to_military_time(validation_result[1])
+            return {"End Time": convert_et, "message": message}
+        else:
+            return {"message": random.choice(fallback_responses_time)}
