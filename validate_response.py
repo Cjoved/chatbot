@@ -21,25 +21,25 @@ def date_validator(text):
         # regex to confirm if the text has a number
         # kung walng number ang text, raise exception
         if re.search(r'\d', text):
-
-
             date_extracted = None
             for ent in doc.ents:
                 if ent.label_ == "DATE":
-                    print(f"Text: {ent.text} -> Parsed Date: {ent._.date}")
                     date_extracted = ent._.date
                     date_formatted = date_extracted.strftime(date_format)
                     return date_formatted, True
         
                 if date_extracted is None:
                     result = search_dates(text)
-                    return result[0][1].strftime(date_format), False
-        
+                    if result is not None:
+                        return result[0][1].strftime(date_format), False
+                    else:
+                        raise TypeError("Not a valid date format")
+            return False, False
         else:
-            return Exception
+            raise TypeError("Not a valid date format")
     except Exception as e:
         print(f"Error occured: {e}")
-        return None, False
+        return False, False
     
 def time_validator(text):
     try:
@@ -97,5 +97,5 @@ def convert_to_military_time(time_str):
     
 
 # FOR TESTING
-# print(date_validator("Let's meet sometime next Thursday"))
+# print(date_validator("15th of June"))
 # print(time_validator("The event ends at 3 PM sharp."))
